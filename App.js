@@ -45,12 +45,15 @@ export default function App() {
 
   async function registerForPushNotifications() {
     if (Platform.OS === 'android') {
-      await Notifications.setNotificationChannelAsync('task-reminders', {
+      await Notifications.setNotificationChannelAsync('task-reminders-v2', {
         name: 'Task Reminders',
         importance: Notifications.AndroidImportance.MAX,
         vibrationPattern: [0, 250, 250, 250],
         lightColor: '#6C63FF',
         sound: 'default',
+        enableVibrate: true,
+        enableLights: true,
+        showBadge: true,
       });
     }
     if (!Device.isDevice) return;
@@ -101,7 +104,7 @@ export default function App() {
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.DATE,
         date: triggerDate,
-        channelId: 'task-reminders',
+        channelId: 'task-reminders-v2',
       },
     });
   }
@@ -116,7 +119,7 @@ export default function App() {
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
         seconds: 10,
-        channelId: 'task-reminders',
+        channelId: 'task-reminders-v2',
       },
     });
     Alert.alert('Test Sent', 'You will receive a test notification in 10 seconds. Lock your screen to verify.');
