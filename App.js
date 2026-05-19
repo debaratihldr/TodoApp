@@ -240,49 +240,6 @@ export default function App() {
               </Text>
             </TouchableOpacity>
 
-            {showDatePicker && (
-              <View>
-                <DateTimePicker
-                  value={selectedDate}
-                  mode="date"
-                  display="spinner"
-                  minimumDate={new Date()}
-                  textColor="#222"
-                  onChange={(_, date) => {
-                    if (date) {
-                      const merged = new Date(selectedDate);
-                      merged.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
-                      setSelectedDate(merged);
-                    }
-                  }}
-                />
-                <TouchableOpacity style={styles.pickerDoneBtn} onPress={() => setShowDatePicker(false)}>
-                  <Text style={styles.pickerDoneText}>Done</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-
-            {showTimePicker && (
-              <View>
-                <DateTimePicker
-                  value={selectedDate}
-                  mode="time"
-                  display="spinner"
-                  textColor="#222"
-                  onChange={(_, time) => {
-                    if (time) {
-                      const merged = new Date(selectedDate);
-                      merged.setHours(time.getHours(), time.getMinutes());
-                      setSelectedDate(merged);
-                    }
-                  }}
-                />
-                <TouchableOpacity style={styles.pickerDoneBtn} onPress={() => setShowTimePicker(false)}>
-                  <Text style={styles.pickerDoneText}>Done</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-
             <View style={styles.modalActions}>
               <TouchableOpacity style={styles.cancelBtn} onPress={closeModal}>
                 <Text style={styles.cancelText}>Cancel</Text>
@@ -294,6 +251,39 @@ export default function App() {
           </View>
         </View>
       </Modal>
+
+      {showDatePicker && (
+        <DateTimePicker
+          value={selectedDate}
+          mode="date"
+          display="default"
+          minimumDate={new Date()}
+          onChange={(event, date) => {
+            setShowDatePicker(false);
+            if (event.type !== 'dismissed' && date) {
+              const merged = new Date(selectedDate);
+              merged.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
+              setSelectedDate(merged);
+            }
+          }}
+        />
+      )}
+
+      {showTimePicker && (
+        <DateTimePicker
+          value={selectedDate}
+          mode="time"
+          display="default"
+          onChange={(event, time) => {
+            setShowTimePicker(false);
+            if (event.type !== 'dismissed' && time) {
+              const merged = new Date(selectedDate);
+              merged.setHours(time.getHours(), time.getMinutes());
+              setSelectedDate(merged);
+            }
+          }}
+        />
+      )}
     </View>
   );
 }
@@ -352,6 +342,4 @@ const styles = StyleSheet.create({
   cancelText: { color: '#666', fontWeight: '600' },
   saveBtn: { flex: 1, padding: 14, borderRadius: 10, backgroundColor: '#6C63FF', alignItems: 'center' },
   saveText: { color: '#fff', fontWeight: '700', fontSize: 15 },
-  pickerDoneBtn: { alignSelf: 'flex-end', paddingHorizontal: 16, paddingVertical: 8, marginBottom: 4 },
-  pickerDoneText: { color: '#6C63FF', fontWeight: '700', fontSize: 15 },
 });
