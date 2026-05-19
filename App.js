@@ -45,15 +45,15 @@ export default function App() {
 
   async function registerForPushNotifications() {
     if (Platform.OS === 'android') {
-      await Notifications.setNotificationChannelAsync('task-reminders-v2', {
+      await Notifications.setNotificationChannelAsync('task-reminders-v3', {
         name: 'Task Reminders',
         importance: Notifications.AndroidImportance.MAX,
         vibrationPattern: [0, 250, 250, 250],
         lightColor: '#6C63FF',
-        sound: 'default',
         enableVibrate: true,
         enableLights: true,
         showBadge: true,
+        bypassDnd: true,
       });
     }
     if (!Device.isDevice) return;
@@ -97,14 +97,12 @@ export default function App() {
       content: {
         title: '⏰ Task Reminder',
         body: task.text,
-        sound: true,
         priority: 'max',
-        vibrate: [0, 250, 250, 250],
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.DATE,
         date: triggerDate,
-        channelId: 'task-reminders-v2',
+        channelId: 'task-reminders-v3',
       },
     });
   }
@@ -112,17 +110,24 @@ export default function App() {
   async function sendTestNotification() {
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: '✅ Notifications Working!',
-        body: 'Your task reminders will ring at the scheduled time.',
-        sound: true,
+        title: '✅ Test Notification',
+        body: 'If you hear a sound, notifications are working!',
+        priority: 'max',
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-        seconds: 10,
-        channelId: 'task-reminders-v2',
+        seconds: 5,
+        channelId: 'task-reminders-v3',
       },
     });
-    Alert.alert('Test Sent', 'You will receive a test notification in 10 seconds. Lock your screen to verify.');
+    Alert.alert(
+      'Test Sent',
+      'A notification will arrive in 5 seconds.\n\nIf no sound plays, go to:\nSettings → Apps → debarati First to do app → Notifications → Task Reminders → Sound',
+      [
+        { text: 'Open Notification Settings', onPress: () => Linking.openSettings() },
+        { text: 'OK' },
+      ]
+    );
   }
 
   async function cancelNotification(notifId) {
