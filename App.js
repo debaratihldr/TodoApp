@@ -230,11 +230,11 @@ export default function App() {
               multiline
             />
 
-            <TouchableOpacity style={styles.pickerBtn} onPress={() => setShowDatePicker(true)}>
+            <TouchableOpacity style={styles.pickerBtn} onPress={() => { setModalVisible(false); setShowDatePicker(true); }}>
               <Text style={styles.pickerBtnText}>📅  {selectedDate.toDateString()}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.pickerBtn} onPress={() => setShowTimePicker(true)}>
+            <TouchableOpacity style={styles.pickerBtn} onPress={() => { setModalVisible(false); setShowTimePicker(true); }}>
               <Text style={styles.pickerBtnText}>
                 🕐  {selectedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </Text>
@@ -260,6 +260,7 @@ export default function App() {
           minimumDate={new Date()}
           onChange={(event, date) => {
             setShowDatePicker(false);
+            setModalVisible(true);
             if (event.type !== 'dismissed' && date) {
               const merged = new Date(selectedDate);
               merged.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
@@ -276,6 +277,7 @@ export default function App() {
           display="default"
           onChange={(event, time) => {
             setShowTimePicker(false);
+            setModalVisible(true);
             if (event.type !== 'dismissed' && time) {
               const merged = new Date(selectedDate);
               merged.setHours(time.getHours(), time.getMinutes());
