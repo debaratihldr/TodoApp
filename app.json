@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "TodoApp",
+    "name": "debarati First to do app",
     "slug": "TodoApp",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -21,13 +21,20 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": false,
-      "package": "com.debaratihldr.todoapp"
+      "package": "com.debaratihldr.todoapp",
+      "permissions": [
+        "USE_EXACT_ALARM",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "POST_NOTIFICATIONS"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "expo-notifications"
     ],
     "extra": {
       "eas": {

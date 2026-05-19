@@ -43,6 +43,15 @@ export default function App() {
   }, []);
 
   async function registerForPushNotifications() {
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('task-reminders', {
+        name: 'Task Reminders',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#6C63FF',
+        sound: 'default',
+      });
+    }
     if (!Device.isDevice) return;
     const { status: existing } = await Notifications.getPermissionsAsync();
     let finalStatus = existing;
@@ -51,15 +60,7 @@ export default function App() {
       finalStatus = status;
     }
     if (finalStatus !== 'granted') {
-      Alert.alert('Permission required', 'Enable notifications to get task reminders.');
-    }
-    if (Platform.OS === 'android') {
-      Notifications.setNotificationChannelAsync('default', {
-        name: 'default',
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#6C63FF',
-      });
+      Alert.alert('Permission required', 'Enable notifications in Settings to get task reminders.');
     }
   }
 
@@ -76,15 +77,19 @@ export default function App() {
   }
 
   async function scheduleNotification(task) {
-    const trigger = new Date(task.datetime);
-    if (trigger <= new Date()) return null;
+    const triggerDate = new Date(task.datetime);
+    if (triggerDate <= new Date()) return null;
     return await Notifications.scheduleNotificationAsync({
       content: {
         title: 'Task Reminder',
         body: task.text,
-        sound: true,
+        sound: 'default',
+        android: { channelId: 'task-reminders', priority: 'max' },
       },
-      trigger,
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date: triggerDate,
+      },
     });
   }
 
@@ -236,36 +241,46 @@ export default function App() {
             </TouchableOpacity>
 
             {showDatePicker && (
-              <DateTimePicker
-                value={selectedDate}
-                mode="date"
-                display="default"
-                minimumDate={new Date()}
-                onChange={(_, date) => {
-                  setShowDatePicker(false);
-                  if (date) {
-                    const merged = new Date(selectedDate);
-                    merged.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
-                    setSelectedDate(merged);
-                  }
-                }}
-              />
+              <View>
+                <DateTimePicker
+                  value={selectedDate}
+                  mode="date"
+                  display="spinner"
+                  minimumDate={new Date()}
+                  textColor="#222"
+                  onChange={(_, date) => {
+                    if (date) {
+                      const merged = new Date(selectedDate);
+                      merged.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
+                      setSelectedDate(merged);
+                    }
+                  }}
+                />
+                <TouchableOpacity style={styles.pickerDoneBtn} onPress={() => setShowDatePicker(false)}>
+                  <Text style={styles.pickerDoneText}>Done</Text>
+                </TouchableOpacity>
+              </View>
             )}
 
             {showTimePicker && (
-              <DateTimePicker
-                value={selectedDate}
-                mode="time"
-                display="default"
-                onChange={(_, time) => {
-                  setShowTimePicker(false);
-                  if (time) {
-                    const merged = new Date(selectedDate);
-                    merged.setHours(time.getHours(), time.getMinutes());
-                    setSelectedDate(merged);
-                  }
-                }}
-              />
+              <View>
+                <DateTimePicker
+                  value={selectedDate}
+                  mode="time"
+                  display="spinner"
+                  textColor="#222"
+                  onChange={(_, time) => {
+                    if (time) {
+                      const merged = new Date(selectedDate);
+                      merged.setHours(time.getHours(), time.getMinutes());
+                      setSelectedDate(merged);
+                    }
+                  }}
+                />
+                <TouchableOpacity style={styles.pickerDoneBtn} onPress={() => setShowTimePicker(false)}>
+                  <Text style={styles.pickerDoneText}>Done</Text>
+                </TouchableOpacity>
+              </View>
             )}
 
             <View style={styles.modalActions}>
@@ -337,4 +352,6 @@ const styles = StyleSheet.create({
   cancelText: { color: '#666', fontWeight: '600' },
   saveBtn: { flex: 1, padding: 14, borderRadius: 10, backgroundColor: '#6C63FF', alignItems: 'center' },
   saveText: { color: '#fff', fontWeight: '700', fontSize: 15 },
+  pickerDoneBtn: { alignSelf: 'flex-end', paddingHorizontal: 16, paddingVertical: 8, marginBottom: 4 },
+  pickerDoneText: { color: '#6C63FF', fontWeight: '700', fontSize: 15 },
 });
