@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, FlatList,
-  StyleSheet, Platform, Alert, StatusBar, Modal
+  StyleSheet, Platform, Alert, StatusBar, Modal, Linking
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
@@ -10,7 +10,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
   }),
@@ -60,7 +61,17 @@ export default function App() {
       finalStatus = status;
     }
     if (finalStatus !== 'granted') {
-      Alert.alert('Permission required', 'Enable notifications in Settings to get task reminders.');
+      Alert.alert(
+        'Permission required',
+        'Enable notifications in Settings to get task reminders.',
+        [{ text: 'Open Settings', onPress: () => Linking.openSettings() }, { text: 'Cancel' }]
+      );
+    } else {
+      Alert.alert(
+        '⚙️ Battery Optimization',
+        'For notifications to ring on time, please disable battery optimization for this app.\n\nGo to: Settings → Apps → debarati First to do app → Battery → Unrestricted',
+        [{ text: 'Open Settings', onPress: () => Linking.openSettings() }, { text: 'OK' }]
+      );
     }
   }
 
@@ -81,16 +92,34 @@ export default function App() {
     if (triggerDate <= new Date()) return null;
     return await Notifications.scheduleNotificationAsync({
       content: {
-        title: 'Task Reminder',
+        title: '⏰ Task Reminder',
         body: task.text,
-        sound: 'default',
-        android: { channelId: 'task-reminders', priority: 'max' },
+        sound: true,
+        priority: 'max',
+        vibrate: [0, 250, 250, 250],
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.DATE,
         date: triggerDate,
+        channelId: 'task-reminders',
       },
     });
+  }
+
+  async function sendTestNotification() {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: '✅ Notifications Working!',
+        body: 'Your task reminders will ring at the scheduled time.',
+        sound: true,
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+        seconds: 10,
+        channelId: 'task-reminders',
+      },
+    });
+    Alert.alert('Test Sent', 'You will receive a test notification in 10 seconds. Lock your screen to verify.');
   }
 
   async function cancelNotification(notifId) {
@@ -179,8 +208,15 @@ export default function App() {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#6C63FF" />
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>My Tasks</Text>
-        <Text style={styles.headerSub}>{pending.length} pending</Text>
+        <View style={styles.headerRow}>
+          <View>
+            <Text style={styles.headerTitle}>My Tasks</Text>
+            <Text style={styles.headerSub}>{pending.length} pending</Text>
+          </View>
+          <TouchableOpacity style={styles.testBtn} onPress={sendTestNotification}>
+            <Text style={styles.testBtnText}>Test 🔔</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <FlatList
@@ -293,8 +329,11 @@ export default function App() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F0F0F7' },
   header: { backgroundColor: '#6C63FF', paddingTop: 56, paddingBottom: 20, paddingHorizontal: 24 },
+  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   headerTitle: { color: '#fff', fontSize: 28, fontWeight: '700' },
   headerSub: { color: '#D4D0FF', fontSize: 14, marginTop: 4 },
+  testBtn: { backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20 },
+  testBtnText: { color: '#fff', fontWeight: '600', fontSize: 13 },
   list: { padding: 16, paddingBottom: 100 },
   empty: { alignItems: 'center', marginTop: 60 },
   emptyText: { color: '#aaa', fontSize: 16 },
