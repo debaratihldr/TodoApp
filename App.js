@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
   deleteBtn: { padding: 6 },
   deleteText: { color: '#ccc', fontSize: 16 },
   fab: {
-    position: 'absolute', bottom: 28, right: 24,
+    position: 'absolute', bottom: 48, right: 24,
     width: 60, height: 60, borderRadius: 30,
     backgroundColor: '#6C63FF', alignItems: 'center', justifyContent: 'center',
     shadowColor: '#6C63FF', shadowOpacity: 0.5, shadowRadius: 8, shadowOffset: { width: 0, height: 4 },
